@@ -1,0 +1,42 @@
+@startuml
+actor "Cliente" as Cliente
+participant "Agente Cliente" as AgenteCliente
+participant "Marketplace" as Marketplace
+participant "Producto" as Producto
+
+title Secuencia de Compra - Sistema Multiagente
+
+== Agregar al Carrito ==
+
+Cliente -> AgenteCliente: agregar_al_carrito(producto, marketplace)
+AgenteCliente -> Marketplace: verificar_stock(id_producto)
+alt Stock disponible
+    Marketplace --> AgenteCliente: true
+    AgenteCliente -> AgenteCliente: agregar producto al carrito
+    AgenteCliente --> Cliente: "✅ Producto agregado al carrito"
+else Sin stock
+    Marketplace --> AgenteCliente: false
+    AgenteCliente --> Cliente: "❌ No hay stock disponible"
+end
+
+== Realizar Compra ==
+
+Cliente -> AgenteCliente: realizar_compra(marketplace)
+AgenteCliente -> AgenteCliente: calcular_total_carrito()
+AgenteCliente -> AgenteCliente: verificar_presupuesto()
+
+alt Presupuesto suficiente
+    AgenteCliente -> Marketplace: procesar_orden(cliente, productos)
+    Marketplace -> Marketplace: validar_stock_todos_productos()
+    Marketplace -> Marketplace: actualizar_inventario()
+    Marketplace -> Marketplace: crear_orden_compra()
+    Marketplace --> AgenteCliente: orden_confirmada
+    AgenteCliente -> AgenteCliente: actualizar_presupuesto()
+    AgenteCliente -> AgenteCliente: limpiar_carrito()
+    AgenteCliente -> AgenteCliente: agregar_al_historial()
+    AgenteCliente --> Cliente: "✅ Compra realizada exitosamente"
+else Presupuesto insuficiente
+    AgenteCliente --> Cliente: "❌ Presupuesto insuficiente"
+end
+
+@enduml
